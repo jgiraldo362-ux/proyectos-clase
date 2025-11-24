@@ -1,0 +1,155 @@
+//Reto de Programación en Java
+public class Estudiante {
+    private String id;
+    private String nombre;
+    private int puntosTotales;
+    private String nivel;
+
+    public Estudiante(String id, String nombre, int puntosTotales) {
+        this.id = id;
+        this.nombre = nombre;
+        this.puntosTotales = puntosTotales;
+        calcularNivel();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void agregarPuntos(int puntos) {
+        puntosTotales += puntos;
+        calcularNivel();
+    }
+
+    public void calcularNivel() {
+        if (puntosTotales < 100) nivel = "Novato";
+        else if (puntosTotales < 200) nivel = "Intermedio";
+        else if (puntosTotales < 300) nivel = "Avanzado";
+        else nivel = "Experto";
+    }
+
+    public String toString() {
+        return id + ";" + nombre + ";" + puntosTotales + ";" + nivel;
+    }
+
+    public String mostrar() {
+        return "ID: " + id + " | Nombre: " + nombre + " | Puntos: " + puntosTotales + " | Nivel: " + nivel;
+    }
+}
+
+//evaluador 
+import java.util.*;
+import java.io.*;
+
+public class Evaluador {
+    private String nombreEvaluador;
+    private ArrayList<Estudiante> listaEstudiantes;
+    private File archivoDatos;
+
+    public Evaluador(String nombreEvaluador) {
+        this.nombreEvaluador = nombreEvaluador;
+        listaEstudiantes = new ArrayList<>();
+        archivoDatos = new File("estudiantes.txt");
+        cargarDatosDesdeArchivo();
+    }
+
+    public void registrarEstudiante(String id, String nombre) {
+        listaEstudiantes.add(new Estudiante(id, nombre, 0));
+        guardarDatosEnArchivo();
+    }
+
+    public void asignarPuntos(String id, int puntos) {
+        for (Estudiante e : listaEstudiantes) {
+            if (e.getId().equals(id)) {
+                e.agregarPuntos(puntos);
+                guardarDatosEnArchivo();
+                return;
+            }
+        }
+    }
+
+    public String mostrarRanking() {
+        listaEstudiantes.sort((a, b) -> b.toString().compareTo(a.toString()));
+        String s = "";
+        for (Estudiante e : listaEstudiantes) {
+            s += e.mostrar() + "\n";
+        }
+        return s;
+    }
+
+    public void guardarDatosEnArchivo() {
+        try {
+            PrintWriter pw = new PrintWriter(new FileWriter(archivoDatos));
+            for (Estudiante e : listaEstudiantes) {
+                pw.println(e.toString());
+            }
+            pw.close();
+        } catch (Exception e) {
+        }
+    }
+
+    public void cargarDatosDesdeArchivo() {
+        try {
+            if (!archivoDatos.exists()) return;
+            BufferedReader br = new BufferedReader(new FileReader(archivoDatos));
+            String linea;
+            while ((linea = br.readLine()) != null) {
+                String[] datos = linea.split(";");
+                String id = datos[0];
+                String nombre = datos[1];
+                int puntos = Integer.parseInt(datos[2]);
+                listaEstudiantes.add(new Estudiante(id, nombre, puntos));
+            }
+            br.close();
+        } catch (Exception e) {
+        }
+    }
+}
+
+//reto main
+import javax.swing.*;
+
+public class RetoMain {
+    public static void main(String[] args) {
+        Evaluador evaluador = new Evaluador("Admin");
+
+        while (true) {
+            String opcion = JOptionPane.showInputDialog("""
+=== Sistema de Evaluación ===
+1. Registrar estudiante
+2. Asignar puntos
+3. Mostrar ranking
+4. Salir
+""");
+
+            if (opcion == null) break;
+
+            switch (opcion) {
+                case "1":
+                    String id = JOptionPane.showInputDialog("Ingrese ID:");
+                    String nombre = JOptionPane.showInputDialog("Ingrese nombre:");
+                    evaluador.registrarEstudiante(id, nombre);
+                    JOptionPane.showMessageDialog(null, "Estudiante registrado.");
+                    break;
+
+                case "2":
+                    String idBuscar = JOptionPane.showInputDialog("ID del estudiante:");
+                    int puntos = Integer.parseInt(JOptionPane.showInputDialog("Puntos a asignar:"));
+                    evaluador.asignarPuntos(idBuscar, puntos);
+                    JOptionPane.showMessageDialog(null, "Puntos asignados.");
+                    break;
+
+                case "3":
+                    JOptionPane.showMessageDialog(null, evaluador.mostrarRanking());
+                    break;
+
+                case "4":
+                    System.exit(0);
+                    break;
+
+                default:
+                    JOptionPane.showMessageDialog(null, "Opción inválida.");
+            }
+        }
+    }
+}
