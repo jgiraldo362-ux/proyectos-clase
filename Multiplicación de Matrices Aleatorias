@@ -1,0 +1,94 @@
+//Multiplicación de Matrices Aleatorias
+import java.util.Scanner;
+import java.util.Random;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        Random rand = new Random();
+
+        int filasA, colsA, filasB, colsB;
+
+        filasA = pedirValor(sc, "Ingrese filas de la Matriz A (1-6): ");
+        colsA = pedirValor(sc, "Ingrese columnas de la Matriz A (1-6): ");
+        filasB = pedirValor(sc, "Ingrese filas de la Matriz B (1-6): ");
+        colsB = pedirValor(sc, "Ingrese columnas de la Matriz B (1-6): ");
+
+        if (colsA != filasB) {
+            System.out.println("No es posible multiplicar las matrices. Las columnas de A deben ser iguales a las filas de B.");
+            return;
+        }
+
+        int[][] A = new int[filasA][colsA];
+        int[][] B = new int[filasB][colsB];
+        int[][] C = new int[filasA][colsB];
+
+        for (int i = 0; i < filasA; i++) {
+            for (int j = 0; j < colsA; j++) {
+                A[i][j] = rand.nextInt(21) - 10;
+            }
+        }
+
+        for (int i = 0; i < filasB; i++) {
+            for (int j = 0; j < colsB; j++) {
+                B[i][j] = rand.nextInt(21) - 10;
+            }
+        }
+
+        for (int i = 0; i < filasA; i++) {
+            for (int j = 0; j < colsB; j++) {
+                int suma = 0;
+                for (int k = 0; k < colsA; k++) {
+                    suma += A[i][k] * B[k][j];
+                }
+                C[i][j] = suma;
+            }
+        }
+
+        System.out.println("\nMATRIZ A (" + filasA + "x" + colsA + "):     MATRIZ B (" + filasB + "x" + colsB + "):     RESULTADO (" + filasA + "x" + colsB + "):");
+
+        for (int i = 0; i < Math.max(Math.max(filasA, filasB), filasA); i++) {
+            String filaA = "";
+            String filaB = "";
+            String filaC = "";
+
+            if (i < filasA) filaA = formatearFila(A[i]);
+            else filaA = espacio(colsA);
+
+            if (i < filasB) filaB = formatearFila(B[i]);
+            else filaB = espacio(colsB);
+
+            if (i < filasA) filaC = formatearFila(C[i]);
+            else filaC = espacio(colsB);
+
+            String signo = i == filasA / 2 ? " × " : "   ";
+            String igual = i == filasA / 2 ? " = " : "   ";
+
+            System.out.println(filaA + signo + filaB + igual + filaC);
+        }
+    }
+
+    public static int pedirValor(Scanner sc, String mensaje) {
+        int valor;
+        while (true) {
+            System.out.print(mensaje);
+            valor = sc.nextInt();
+            if (valor >= 1 && valor <= 6) return valor;
+            System.out.println("Valor inválido. Debe estar entre 1 y 6.");
+        }
+    }
+
+    public static String formatearFila(int[] fila) {
+        String s = "[ ";
+        for (int n : fila) s += n + " ";
+        s += "]";
+        return s;
+    }
+
+    public static String espacio(int n) {
+        String s = "[ ";
+        for (int i = 0; i < n; i++) s += "  ";
+        s += "]";
+        return s;
+    }
+}
